@@ -1,47 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:workshop_1/level3/detail_screen.dart';
+import 'package:workshop_1/level3/models/product.dart';
+import 'package:workshop_1/level3/providers/product_provider.dart';
 
 class ProductCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String imagePath;
-  final double rating;
-  final int ratingCount;
-  final bool isLiked;
-  final ValueChanged<bool> onLikeChanged;
+  final Product product;
 
   const ProductCard({
     super.key,
-    required this.title,
-    required this.description,
-    required this.imagePath,
-    required this.rating,
-    required this.ratingCount,
-    required this.isLiked,
-    required this.onLikeChanged,
+    required this.product,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DetailScreen(
-                title: title,
-                description: description,
-                imagePath: imagePath,
-                rating: rating,
-                ratingCount: ratingCount,
-                isLiked: isLiked,
-                onLikeChanged: onLikeChanged,
-              ),
-            ),
-          );
-        },
-        child: Column(
+    final isLiked = context.watch<ProductProvider>().isLiked(product.id);
+
+    return GestureDetector(
+      onTap: () {
+        // Menghilangkan fokus dari TextField (dan menutup keyboard) sebelum pindah halaman
+        FocusManager.instance.primaryFocus?.unfocus();
+        
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailScreen(product: product),
+          ),
+        );
+      },
+      child: Column(
           crossAxisAlignment: .start,
           children: [
             ClipRRect(
@@ -53,8 +40,8 @@ class ProductCard extends StatelessWidget {
                   children: [
                     Positioned.fill(
                       child: Image.asset(
-                        imagePath,
-                        fit: .cover,
+                        product.imagePath,
+                        fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: Colors.grey.shade400,
@@ -74,7 +61,7 @@ class ProductCard extends StatelessWidget {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
-                          onLikeChanged(!isLiked);
+                          context.read<ProductProvider>().toggleLike(product.id);
                         },
                         child: Container(
                           padding: const EdgeInsets.all(6),
@@ -96,36 +83,35 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 12),
-            Text(title),
-            SizedBox(height: 4),
+            const SizedBox(height: 12),
+            Text(product.title),
+            const SizedBox(height: 4),
             Row(
               children: [
                 Icon(Icons.star, size: 16, color: Colors.amber.shade700),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: rating.toStringAsFixed(1),
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        text: product.rating.toStringAsFixed(1),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      TextSpan(text: ' ($ratingCount ulasan)'),
+                      TextSpan(text: ' (${product.ratingCount} ulasan)'),
                     ],
                   ),
                   style: TextStyle(
                     color: Colors.grey.shade700,
                     fontSize: 12,
-                    fontWeight: .w500,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 6),
-            Text(description),
+            const SizedBox(height: 6),
+            Text(product.description),
           ],
         ),
-      ),
     );
   }
 }

@@ -1,23 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:workshop_1/level3/models/product.dart';
+import 'package:workshop_1/level3/providers/product_provider.dart';
 
 class DetailScreen extends StatefulWidget {
-  final String title;
-  final String description;
-  final String imagePath;
-  final double rating;
-  final int ratingCount;
-  final bool isLiked;
-  final ValueChanged<bool> onLikeChanged;
-
+  final Product product;
   const DetailScreen({
     super.key,
-    required this.title,
-    required this.description,
-    required this.imagePath,
-    required this.rating,
-    required this.ratingCount,
-    required this.onLikeChanged,
-    this.isLiked = false,
+    required this.product,
   });
 
   @override
@@ -25,16 +15,11 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  late bool _isLiked;
-
-  @override
-  void initState() {
-    super.initState();
-    _isLiked = widget.isLiked;
-  }
 
   @override
   Widget build(BuildContext context) {
+    final isLiked = context.watch<ProductProvider>().isLiked(widget.product.id);
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: .start,
@@ -50,8 +35,8 @@ class _DetailScreenState extends State<DetailScreen> {
                   width: .infinity,
                   height: 319,
                   child: Image.asset(
-                    widget.imagePath,
-                    fit: .cover,
+                    widget.product.imagePath,
+                    fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: Colors.grey.shade400,
@@ -95,10 +80,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          setState(() {
-                            _isLiked = !_isLiked;
-                          });
-                          widget.onLikeChanged(_isLiked);
+                          context.read<ProductProvider>().toggleLike(widget.product.id);
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),
@@ -107,9 +89,9 @@ class _DetailScreenState extends State<DetailScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            _isLiked ? Icons.favorite : Icons.favorite_border,
+                            isLiked ? Icons.favorite : Icons.favorite_border,
                             size: 20,
-                            color: _isLiked
+                            color: isLiked
                                 ? Colors.red.shade400
                                 : Colors.grey.shade800,
                           ),
@@ -133,8 +115,8 @@ class _DetailScreenState extends State<DetailScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        widget.title,
-                        style: TextStyle(fontWeight: .w600, fontSize: 24),
+                        widget.product.title,
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
                       ),
                     ),
                     Row(
@@ -144,21 +126,21 @@ class _DetailScreenState extends State<DetailScreen> {
                           size: 18,
                           color: Colors.amber.shade700,
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         Text.rich(
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: widget.rating.toStringAsFixed(1),
-                                style: TextStyle(fontWeight: FontWeight.w700),
+                                text: widget.product.rating.toStringAsFixed(1),
+                                style: const TextStyle(fontWeight: FontWeight.w700),
                               ),
-                              TextSpan(text: ' (${widget.ratingCount} ulasan)'),
+                              TextSpan(text: ' (${widget.product.ratingCount} ulasan)'),
                             ],
                           ),
                           style: TextStyle(
                             color: Colors.grey.shade700,
                             fontSize: 14,
-                            fontWeight: .w500,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -166,8 +148,8 @@ class _DetailScreenState extends State<DetailScreen> {
                   ],
                 ),
                 Text(
-                  widget.description,
-                  style: TextStyle(fontWeight: .w600, fontSize: 16),
+                  widget.product.description,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
               ],
             ),

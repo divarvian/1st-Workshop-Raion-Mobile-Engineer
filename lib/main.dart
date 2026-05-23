@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:workshop_1/level1/home_page_1.dart';
-import 'package:workshop_1/level2/home_page_2.dart';
-import 'package:workshop_1/level3/detail_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:workshop_1/level3/home_page_3.dart';
+import 'package:workshop_1/level3/providers/product_provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ProductProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -18,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         fontFamily: GoogleFonts.quicksand().fontFamily,
       ),
       home: HomePage3(),
